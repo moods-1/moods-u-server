@@ -2,6 +2,7 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Order = require('../models/Order');
 const { tryCatch } = require('../utilities/tryCatch');
 const { OK, SUCCESS } = require('../helpers/constants');
 const {
@@ -9,34 +10,26 @@ const {
 	responseCacher,
 	storeImage,
 	hashPassword,
+	generateToken,
 } = require('../helpers/helperFunctions');
-
-const generateToken = (id) => {
-	return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-};
 
 exports.loginUserController = tryCatch(async (req, res, next) => {
 	const { email: em, password } = req.body;
-	const user = await User.findOne({ email: em });
-	let result = {};
+	const userExists = await User.findOne({ email: em });
 	let response;
 	let message;
-	if (user) {
-		const goodPassword = await bcrypt.compare(password, user.password);
+	if (userExists) {
+		const goodPassword = await bcrypt.compare(password, userExists.password);
+
 		if (goodPassword) {
-			const { firstName, lastName, email, image, _id, cart, enrolledCourses } =
-				user;
-			result = {
-				firstName,
-				lastName,
-				email,
-				image,
-				_id,
-				cart,
-				enrolledCourses,
-				token: generateToken(_id),
-			};
-			response = responseFormatter(OK, SUCCESS, result);
+			const { _id: id } = userExists;
+			userExists.token = generateToken(id);
+			const user = await User.findOneAndUpdate(
+				{ _id: id },
+				{ $set: { ...userExists } },
+				{ returnDocument: 'after' }
+			).select({ password: 0, roles: 0 });
+			response = responseFormatter(OK, SUCCESS, user);
 		} else {
 			message = 'The password is incorrect.';
 			response = responseFormatter(400, message, {});
@@ -82,7 +75,7 @@ exports.getUsersByCompanyController = tryCatch(async (req, res) => {
 
 exports.getUserByIdController = tryCatch(async (req, res) => {
 	const { id } = req.params;
-	const result = await User.findById(id);
+	const result = await User.findById(id).select({ password: 0, roles: 0 });
 	const response = responseFormatter(OK, SUCCESS, result);
 	responseCacher(req, res, response);
 });
@@ -102,16 +95,15 @@ exports.updateUserCartController = tryCatch(async (req, res, next) => {
 			{ _id: userId },
 			{ $addToSet: { cart: itemId } },
 			{ returnOriginal: false }
-		);
+		).select({ password: 0, roles: 0 });
 	} else if (type === 'remove') {
 		response = await User.findOneAndUpdate(
 			{ _id: userId },
 			{ $pull: { cart: itemId } },
 			{ returnOriginal: false }
-		);
+		).select({ password: 0, roles: 0 });
 	}
-	const { cart } = response;
-	res.json(responseFormatter(OK, SUCCESS, cart));
+	res.json(responseFormatter(OK, SUCCESS, response));
 });
 
 exports.patchUserController = tryCatch(async (req, res) => {
@@ -137,4 +129,14 @@ exports.patchUserController = tryCatch(async (req, res) => {
 		response = responseFormatter(OK, 'No changes made.', {});
 		responseCacher(req, res, response);
 	}
+});
+
+exports.checkoutController = tryCatch(async (req, res) => {
+	const { userId, cart, orderTotal } = req.body;
+	const orderObject = { userId, products: cart, orderTotal };
+	const user = await User.paymentUpdate({ userId, cart });
+	console.log({ user });
+	const order = await Order.addOrder(orderObject);
+	const response = responseFormatter(OK, SUCCESS, user);
+	res.json(response);
 });

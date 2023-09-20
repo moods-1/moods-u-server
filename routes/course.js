@@ -11,6 +11,4 @@ router.get('/', getAllCoursesController);
 //POST
 router.post('/add-many', addManyCoursesController);
 
-//PATCH
-
 module.exports = router;

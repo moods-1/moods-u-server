@@ -1,6 +1,7 @@
 //HTTP Status codes
 exports.OK = 200;
 exports.SERVER_ERROR = 500;
+exports.USER_ERROR = 400;
 
 // Response messages
 exports.SUCCESS = 'Success';
@@ -15,8 +16,20 @@ exports.TASK_STATES = {
 }
 
 exports.USER_ROLES = {
+    DEFAULT: 'default',
+}
+
+exports.EMPLOYEE_ROLES = {
     ADMIN: 'admin',
     DEFAULT: 'default',
+    MODERATOR: 'moderator',
+}
+
+exports.COMPANY_DEPARTMENTS = {   
+    FINANCE: 'Finance',
+    HUMAN_RESOURCES: 'Human Resources',
+    SUPPORT: 'Support',  
+    TEACHING: 'Teaching',
 }
 
 exports.DEFAULT_IMAGES = {

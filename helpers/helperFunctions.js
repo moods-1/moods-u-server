@@ -1,5 +1,6 @@
 const { v2 } = require('cloudinary');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 v2.config({
 	cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -31,3 +32,7 @@ exports.storeImage = async (data) => {
 exports.hashPassword = async (data) => {
 	return await bcrypt.hashSync(data, 8);
 }
+
+exports.generateToken = (id) => {
+	return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+};
