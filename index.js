@@ -26,6 +26,7 @@ app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/public'));
 
+// Setup routes
 app.use('/api/users', userRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/testimonials', testimonialRouter);
