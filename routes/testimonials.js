@@ -6,7 +6,7 @@ const {
 const auth = require('../middleware/auth');
 
 //GET
-router.get('/by-size/:size', auth, getTestimonialsController);
+router.get('/by-size/:size', getTestimonialsController);
 
 //POST
 router.post('/add-testimonials', auth, addManyTestimonialsController);
