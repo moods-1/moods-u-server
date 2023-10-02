@@ -91,7 +91,7 @@ UserSchema.statics.paymentUpdate = async function (paymentObject) {
 			{ _id: userId },
 			{
 				$addToSet: { enrolledCourses: { $each: cart }, orders: orderId },
-				$set: { cart: [] },
+				$pull: { cart: { $in: cart } },
 			},
 			{ returnDocument: 'after' }
 		).select({ password: 0, roles: 0 });
