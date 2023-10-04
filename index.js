@@ -18,6 +18,7 @@ const orderRouter = require('./routes/order');
 
 // Connect to DB
 require('./db')();
+require('./chat')();
 
 // Setup middleware
 app.use(cors());
@@ -36,4 +37,4 @@ app.use('/api/invoices', invoiceRouter);
 app.use('/api/orders', orderRouter);
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Main server listening on port ${PORT}`));
