@@ -18,7 +18,7 @@ const orderRouter = require('./routes/order');
 
 // Connect to DB
 require('./db')();
-require('./chat')();
+// require('./chat')();
 
 // Setup middleware
 app.use(cors());
