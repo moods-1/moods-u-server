@@ -6,6 +6,7 @@ const { json, urlencoded } = express;
 const app = express();
 const PORT = process.env.PORT || 8000;
 const { errorHandler } = require('./middleware/errorHandler');
+const socket = require('./chat');
 
 // Set routes
 const userRouter = require('./routes/users.js');
@@ -18,16 +19,18 @@ const orderRouter = require('./routes/order');
 
 // Connect to DB
 require('./db')();
-// require('./chat')();
 
 // Setup middleware
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
 app.use(express.static(__dirname + '/public'));
 
 // Setup routes
+app.get('/', (req, res) => {
+	res.status(200).sendFile(__dirname + '/pages/BasePage.html');
+});
 app.use('/api/users', userRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/testimonials', testimonialRouter);
@@ -37,4 +40,7 @@ app.use('/api/invoices', invoiceRouter);
 app.use('/api/orders', orderRouter);
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Main server listening on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Main server listening on port ${PORT}`));
+
+// Start websocket for chat support
+socket(server);
