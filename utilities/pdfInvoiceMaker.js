@@ -1,14 +1,20 @@
 const PDFDocument = require('pdfkit');
+const path = require('path');
 
-exports.invoiceMaker = (res, items, date, orderId, username, email) => {
+exports.invoiceMaker = async (res, items, date, orderId, username, email) => {
 	let total = 0;
 	const doc = new PDFDocument({ margin: 50, size: 'A4' });
 	doc.pipe(res);
+	doc.moveDown(4);
+	doc.image(path.join(__dirname, '../brandDark.png'), doc.x, doc.y, {
+		width: 90,
+		scale: 1.0,
+	});
+	doc.moveDown();
 	doc.font('Helvetica');
 	doc.fontSize(12);
-	doc.moveDown(2);
-	doc.text(`Invoice# ${orderId}`, { lineGap: 8 });
-	doc.text(`Date: ${date}`, { lineGap: 8 });
+	doc.text(`Invoice: ${orderId}`, { lineGap: 8 });
+	doc.text(`Order date: ${date}`, { lineGap: 8 });
 	doc.text(`Customer: ${username}`, { lineGap: 8 });
 	doc.text(`Email: ${email}`);
 	doc.moveDown(8);
