@@ -6,7 +6,7 @@ const { json, urlencoded } = express;
 const app = express();
 const PORT = process.env.PORT || 8000;
 const { errorHandler } = require('./middleware/errorHandler');
-const socket = require('./chat');
+const socket = require('./socket');
 
 // Set routes
 const userRouter = require('./routes/users.js');
